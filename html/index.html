@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Icecast Stream Checker</title>
+</head>
+
+<body>
+    <audio id="streamPlayer" controls autoplay>
+        <source src="http://example.com/stream.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+        function checkStreamStatus() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'https://relay.livemasjid.com:8443/cambridge', true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        var status = JSON.parse(xhr.responseText);
+                        if (status.icestats.source) {
+                            // Stream is currently streaming
+                            document.getElementById('streamPlayer').play();
+                        } else {
+                            // Stream is not currently streaming
+                            console.log('Stream is offline');
+                        }
+                    } else {
+                        console.error('Failed to fetch stream status');
+                    }
+                }
+            };
+            xhr.send();
+        }
+
+        // Check stream status periodically (e.g., every 30 seconds)
+        setInterval(checkStreamStatus, 1000);
+
+    </script>
+</body>
+
+</html>
